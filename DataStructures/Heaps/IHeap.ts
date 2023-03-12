@@ -1,7 +1,9 @@
 export default interface Heap<T> {
-    push(data: T);
+    push(data: T): void;
     pop(): T;
     top(): T;
-    length(): number;
-    empty(): number;
+    clear(): void;
+    empty(): boolean;
+    heapify(): void;
+    get length(): number;
 }

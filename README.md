@@ -1,2 +1,2 @@
-# Eclid
-Algorithms and Data structures library for Deno
+# Euclid
+Algorithms and Data structures library written in Typescript and tested using property-based testing.
