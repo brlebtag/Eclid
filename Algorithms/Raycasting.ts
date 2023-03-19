@@ -3,6 +3,7 @@ import { Vector2D, Collider } from "../Common";
 interface RaycastResult {
     collided: boolean;
     where: Vector2D;
+    path: Vector2D[];
 }
 
 /**
@@ -119,6 +120,7 @@ export function Raycast(begin: Vector2D, end: Vector2D, collider: Collider): Ray
         return {
             collided: true,
             where: begin,
+            path: [begin],
         }
     }
 
@@ -129,6 +131,7 @@ export function Raycast(begin: Vector2D, end: Vector2D, collider: Collider): Ray
             return {
                 collided: true,
                 where: point,
+                path: points,
             }
         }
     }
@@ -136,5 +139,6 @@ export function Raycast(begin: Vector2D, end: Vector2D, collider: Collider): Ray
     return {
         collided: false,
         where: null,
+        path: points,
     };
 }

@@ -14,16 +14,12 @@ export interface Color {
     a: number;
 }
 
-export interface Rectangle {
-    x: number;
+export interface Rectangle extends Vector2D {
     width: number;
-    y: number;
     height: number;
 }
 
-export interface Circle {
-    x: number,
-    y: number,
+export interface Circle extends Vector2D {
     radius: number,
 }
 
