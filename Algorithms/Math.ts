@@ -79,3 +79,11 @@ export function fractional(value: number): number {
 export function lerp(begin: number, end: number, percentage: number): number {
     return percentage * (end - begin) + begin;
 }
+
+export function clamp(x: number, begin: number, end: number): number {
+    return Math.min(Math.max(x, begin), end);
+}
+
+export function sat(x: number): number {
+    return Math.min(Math.max(x, 0.0), 1.0);
+}
