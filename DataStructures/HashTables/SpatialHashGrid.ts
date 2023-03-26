@@ -1,17 +1,6 @@
-import { Vector2D } from "../../Common";
+import { Vector2D, Dimension, Bound } from "../../Common";
 import { sat } from '../../Algorithms/Math';
-
-interface Bound {
-    beginX: number;
-    beginY: number;
-    endX: number;
-    endY: number;
-}
-
-interface Dimension {
-    width: number;
-    height: number;
-}
+import ObjectPool from "../ObjectPool";
 
 interface Client {
     position: Vector2D;
@@ -35,13 +24,22 @@ export default class SpatialHashGrid {
     private dimentions: Dimension;
     private cells: LinkedList[][];
     private queryIds;
+    private pool: ObjectPool<LinkedList>;
 
     constructor(bounds: Bound, dimentions: Dimension) {
         this.bounds = bounds; // [[begin1, end1], [begin2, end2]]
         this.dimentions = dimentions; // [number_quadrants_width, number_quadrants_height]
         this.cells = [...Array(dimentions.width)].map(_ => [...Array(dimentions.height)].map(_ => (null)));
         this.queryIds = 0;
-        this.build(); // Lazy Initialization
+        
+        // Create a pool for the nodes.
+        this.pool = new ObjectPool<LinkedList>(() => {
+            return {
+                next: null,
+                previous: null,
+                client: null,
+            } as LinkedList;
+        });
     }
 
     public newClient(position: Vector2D, dimention: Dimension): Client {
@@ -114,7 +112,7 @@ export default class SpatialHashGrid {
         for (let x = minIndex[0], xn = maxIndex[0]; x <= xn; ++x) {
             for (let y = minIndex[1], yn = maxIndex[1]; y <= yn; ++y) {
                 const xi = x - minIndex[0];
-                const yi = y- maxIndex[0];
+                const yi = y - maxIndex[0];
                 const node = client._cells.nodes[xi][yi];
 
                 if (node.next) {
@@ -128,6 +126,8 @@ export default class SpatialHashGrid {
                 if (!node.previous) {
                     this.cells[x][y] = node.next;
                 }
+
+                this.pool.release(node);
             }
         }
 
@@ -150,12 +150,9 @@ export default class SpatialHashGrid {
 
             for (let y = minIndex[1], yn = maxIndex[1]; y <= yn; ++y) {
                 const xi = x - minIndex[0];
-
-                const head = {
-                    next: null,
-                    previous: null,
-                    client: client,
-                } as LinkedList;
+                const head = this.pool.acquire();
+                head.previous = head.next = null;
+                head.client = client;               
 
                 nodes[xi].push(head);
 
@@ -172,16 +169,6 @@ export default class SpatialHashGrid {
         client._cells.min = minIndex;
         client._cells.max = maxIndex;
         client._cells.nodes = nodes;
-    }
-
-    private build() {
-        const { width, height } = this.dimentions;
-
-        for (let x = 0; x < width; x++) {
-            for (let y = 0; y < height; y++) {
-                this.cells[this.key(x, y)] = new Set();
-            }
-        }
     }
 
     private getCellIndex(position: number[]): [number, number] {

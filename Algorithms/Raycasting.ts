@@ -97,7 +97,7 @@ export function bresenhamLine(point1: Vector2D, point2: Vector2D): Vector2D[] {
     return linePoints;
 }
 
-export function Raycast(begin: Vector2D, end: Vector2D, collider: Collider): RaycastResult {
+export function raycast(begin: Vector2D, end: Vector2D, collider: Collider): RaycastResult {
     if (begin.x == end.x && begin.y == end.y) {
         return {
             collided: true,
@@ -123,4 +123,46 @@ export function Raycast(begin: Vector2D, end: Vector2D, collider: Collider): Ray
         where: null,
         path: points,
     };
+}
+
+/**
+ * Same as bresenhamLine but do not store the path. Only check for collisions.
+ */
+export function lineOfSight(begin: Vector2D, end: Vector2D, collider: Collider): boolean {
+    let {x: x0, y: y0 } = begin;
+    let {x: x1, y: y1 } = end;
+
+    let dx: number = Math.abs(x1 - x0);
+    let sx: number = x0 < x1 ? 1 : -1;
+    let dy: number = - Math.abs(y1 - y0);
+    let sy: number = y0 < y1 ? 1 : -1;
+    let error = dx + dy;
+    let e2: number;
+    let point = {x: 0, y: 0};
+
+    while (true)
+    {
+        point.x = x0;
+        point.y = y0;
+
+        if (collider(point)) return false;
+
+        if (x0 == x1 && y0 == y1) break;
+
+        e2 = 2 * error;
+
+        if (e2 >= dy) {
+            if (x0 == x1) break;
+            error = error + dy;
+            x0 = x0 + sx;
+        }
+
+        if (e2 <= dx) {
+            if (y0 == y1) break;
+            error = error + dx;
+            y0 = y0 + sy;
+        }
+    }
+
+    return true;
 }

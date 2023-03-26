@@ -27,6 +27,18 @@ export interface Collider {
     (point: Vector2D): boolean;
 }
 
+export interface Bound {
+    beginX: number;
+    beginY: number;
+    endX: number;
+    endY: number;
+}
+
+export interface Dimension {
+    width: number;
+    height: number;
+}
+
 export function ascending(x:number, y:number) :number {
     if (x < y) return -1;
     if (x > y) return 1;
