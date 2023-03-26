@@ -1,6 +1,6 @@
 import * as fc from 'fast-check';
-import { map, constrain, normalize, lerp, square } from './Math';
-import { randomInt } from './Common';
+import { map, constrain, normalize, lerp, square, clamp, sat } from './Math';
+import { randomInt, randomFloat } from './Common';
 
 describe('map()', () => {
     it('must return a value x in [B1, E1] between [B2, E2]', () => {
@@ -38,9 +38,9 @@ describe('normalize()', () => {
     it('must return a value x between [0, 1]', () => {
         fc.assert(fc.property(fc.integer(), fc.integer(), (a1, b1) => {
             let b = Math.min(a1, b1);
-            let e = Math.max(a1, b1);
+            let e = Math.max(a1, b1) + 1; // to be at least 1 more than begin
 
-            let value = randomInt(b, e);
+            let value = randomFloat(b, e);
             let newValue = normalize(value, b, e);
 
             expect(newValue).toBeGreaterThanOrEqual(0);
@@ -69,6 +69,26 @@ describe('lerp()', () => {
         fc.assert(fc.property(fc.float({min: 0, max: 1}), y => {
             let x = lerp(0, 1, y);
             expect(x).toBe(y);
+        }))
+    });
+});
+
+describe('clamp()', () => {
+    it('must return a value x between [0, 1] lerped by y', () => {
+        fc.assert(fc.property(fc.integer({min: 0, max: 10_000}), y => {
+            let x = clamp(y, 100, 9_000);
+            expect(x).toBeGreaterThanOrEqual(100);
+            expect(x).toBeLessThanOrEqual(9_000);
+        }))
+    });
+});
+
+describe('sat()', () => {
+    it('must return a value x between [0, 1] lerped by y', () => {
+        fc.assert(fc.property(fc.float({min: -1.0, max: 2.0}), y => {
+            let x = sat(y);
+            expect(x).toBeGreaterThanOrEqual(0);
+            expect(x).toBeLessThanOrEqual(1);
         }))
     });
 });

@@ -58,57 +58,39 @@ export function naiveLine(point1: Vector2D, point2: Vector2D): Vector2D[] {
 }
 
 /**
- * @source https://www.codeproject.com/Articles/15604/Ray-casting-in-a-2D-tile-based-environment
+ * @source https://www.codeproject.com/Articles/15604/Ray-casting-in-a-2D-tile-based-environment // not working!
+ * @source https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm // working
  */
 export function bresenhamLine(point1: Vector2D, point2: Vector2D): Vector2D[] {
     let linePoints: Vector2D[] = [];
-    let {x: x1, y: y1 } = point1;
-    let {x: x2, y: y2 } = point2;
-    let temp: number;
-    let steep: boolean = Math.abs(y2 - y1) > Math.abs(x2 - x1);
+    let {x: x0, y: y0 } = point1;
+    let {x: x1, y: y1 } = point2;
 
-    if (steep) {
-        temp = x1;
-        x1 = y1;
-        y1 = temp;
-    }
+    let dx: number = Math.abs(x1 - x0);
+    let sx: number = x0 < x1 ? 1 : -1;
+    let dy: number = - Math.abs(y1 - y0);
+    let sy: number = y0 < y1 ? 1 : -1;
+    let error = dx + dy;
+    let e2: number;
 
-    if (x1 > x2) {
-        // swap(x1, x2)
-        temp = x1;
-        x1 = x2;
-        x2 = temp;
-        
-        // swap(y1, y2)
-        temp = y1;
-        y1 = y2;
-        y2 = temp;
-    }
+    while (true)
+    {
+        linePoints.push({x: x0, y: y0});
 
-    let deltaX: number = x2 - x1;
-    let deltaY: number = Math.abs(y2 - y1);
-    let error: number = 0;
-    let ystep: number;
-    let y: number = y1;
+        if (x0 == x1 && y0 == y1) break;
 
-    if (y1 < y2) {
-        ystep = 1;
-    } else {
-        ystep = -1;
-    }
+        e2 = 2 * error;
 
-    for (let x = x1; x <= x2; x++) {
-        if (steep) {
-            linePoints.push({x: y, y: x});
-        } else {
-            linePoints.push({x: x, y: y});
+        if (e2 >= dy) {
+            if (x0 == x1) break;
+            error = error + dy;
+            x0 = x0 + sx;
         }
-        
-        error += deltaY;
 
-        if (2 * error >= deltaX) {
-            y += ystep;
-            error -= deltaX;
+        if (e2 <= dx) {
+            if (y0 == y1) break;
+            error = error + dx;
+            y0 = y0 + sy;
         }
     }
 
