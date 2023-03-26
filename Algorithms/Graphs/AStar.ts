@@ -1,4 +1,4 @@
-import { Vector2D } from "../../Common";
+import { Vector2D, Collider, key } from "../../Common";
 import IHeap from '../../DataStructures/Heaps/IHeap';
 
 interface G {
@@ -16,6 +16,7 @@ interface H {
 interface Node extends Vector2D {
     g?: number;
     f?: number;
+    h?: number;
     previous?: Node;
 }
 
@@ -32,42 +33,26 @@ interface State {
     f: F;
     h: H;
     neighbors: Neighbors;
-    obstacle: Obstacle;
+    collider: Collider;
 }
-
-interface Obstacle {
-    (node: Node): boolean;
-}
-
-function key(v: Node): string {
-    return `${v.x}#${v.y}`;
-}
-
 export default function aStar(state: State): Node[] {
-    const { source, destiny, closedSet, openSet, g, f, h, neighbors, obstacle} = state;
-
-    let destinyKey = key(destiny);
-
+    const { source, destiny, closedSet, openSet, g, f, h, neighbors, collider} = state;
     let neighborNodes = [];
     let node;
-    let nodeKey;
 
     while (!openSet.empty()) {
         node = openSet.pop();
-        nodeKey = key(node);
 
-        if (nodeKey == destinyKey) {
-            break;
-        }
+        if (node.x == destiny.x && node.y == destiny.y) break;
 
-        const tempG = g(node.g, destiny);
+        const tempG = g(node, destiny);
 
         neighbors(node, neighborNodes);
 
         for (const neighbor of neighborNodes) {
             let neighborKey = key(neighbor);
 
-            if (!closedSet[neighborKey] && !obstacle(neighbor)) {
+            if (!closedSet[neighborKey] && !collider(neighbor)) {
                 let newPath = false;
 
                 if (openSet[neighborKey]) {
@@ -94,14 +79,10 @@ export default function aStar(state: State): Node[] {
 
     let path = [];
 
-    let sourceKey = key(source);
-
-    if (nodeKey === destinyKey) {
-        
-        while(nodeKey != sourceKey) {
+    if (node.x === destiny.x && node.y == destiny.y) {
+        while(!(node.x == source.x && node.y == source.y)) {
             path.push(node);
             node = node.previous;
-            nodeKey = key(node);
         }
     }
 

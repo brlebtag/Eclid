@@ -56,3 +56,7 @@ export function compare(x:number, y:number) :number {
     if (x > y) return 1;
     return 0;
 }
+
+export function key(v: Vector2D): string {
+    return `${v.x}#${v.y}`;
+}

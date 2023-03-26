@@ -184,8 +184,4 @@ export default class SpatialHashGrid {
 
         return [xIndex, yIndex];
     }
-
-    private key(x: number, y: number) : string {
-        return x + '.' + y;
-    }
 }
