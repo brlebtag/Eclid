@@ -71,11 +71,12 @@ export default class SpatialHashGrid {
 
         for (let x = minIndex[0], xn = maxIndex[0]; x <= xn; ++x) {
             for (let y = minIndex[1], yn = maxIndex[1]; y <= yn; ++y) {
-                let head = this.cells[x][y]
+                let head = this.cells[x][y];
 
                 while (head) {
                     const v = head.client;
                     head = head.next;
+
                     if (v._queryId != queryIds) {
                         v._queryId = queryIds;
                         clients.push(v);
@@ -154,6 +155,7 @@ export default class SpatialHashGrid {
                 head.previous = head.next = null;
                 head.client = client;               
 
+                // It is a linked list of all elements in this same cell
                 nodes[xi].push(head);
 
                 head.next = this.cells[x][y];

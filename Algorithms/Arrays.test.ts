@@ -17,7 +17,7 @@ import {
     copy
 } from './Arrays';
 import { ascending, compare } from '../Common';
-import { randomInt } from './Common';
+import { Random } from './Random';
 import { dictionary } from './Dictionaries';
 
 describe('smallestMidpoint()', () => {
@@ -88,7 +88,7 @@ describe('lowerBound()', () => {
     it('must find a element x presented in the array in its exactly position', () => {
         fc.assert(fc.property(fc.uniqueArray(fc.integer()), (arr => {
             const sorted =  arr.sort(ascending);
-            let index = randomInt(0, Math.max(0, sorted.length - 1));
+            let index = Random.nextInteger(0, Math.max(0, sorted.length - 1));
             let returned = lowerBound(sorted, sorted[index], ascending);
             expect(returned).toBe(index);
         })));
@@ -99,7 +99,7 @@ describe('upperBound()', () => {
     it('must find a element x (presented in the array) bigger than y (presented in the array) presented in the array in x_index + 1 (except when array is empty, then it is x_index)', () => {
         fc.assert(fc.property(fc.uniqueArray(fc.integer()), (arr => {
             const sorted =  arr.sort(ascending);
-            let index = randomInt(0, Math.max(0, sorted.length - 1));
+            let index = Random.nextInteger(0, Math.max(0, sorted.length - 1));
             let returned = upperBound(sorted, sorted[index], ascending);
 
             if (sorted.length == 0) {
@@ -116,7 +116,7 @@ describe('binarySearch()', () => {
         fc.assert(fc.property(fc.uniqueArray(fc.integer()), (arr => {
             const sorted =  arr.sort(ascending);
             if (arr.length > 0) {
-                let index = randomInt(0, Math.max(0, sorted.length - 1));
+                let index = Random.nextInteger(0, Math.max(0, sorted.length - 1));
                 expect(binarySearch(sorted, sorted[index], ascending)).toBe(true);
             }            
         })));
@@ -127,10 +127,10 @@ describe('binarySearch()', () => {
             const sorted =  arr.sort(ascending);
             
             var existing_keys = dictionary(sorted, e => e);
-            let value = randomInt(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
+            let value = Random.nextInteger(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
 
             while (existing_keys[value] !== undefined) {
-                value = randomInt(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
+                value = Random.nextInteger(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
             }
 
             expect(binarySearch(sorted, value, ascending)).toBe(false);

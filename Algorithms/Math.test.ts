@@ -1,6 +1,6 @@
 import * as fc from 'fast-check';
 import { map, constrain, normalize, lerp, square, clamp, sat } from './Math';
-import { randomInt, randomFloat } from './Common';
+import { Random } from './Random';
 
 describe('map()', () => {
     it('must return a value x in [B1, E1] between [B2, E2]', () => {
@@ -10,7 +10,7 @@ describe('map()', () => {
             let b2 = Math.min(c, d);
             let e2 = Math.max(c, d);
 
-            let value = randomInt(b1, e1);
+            let value = Random.nextInteger(b1, e1);
             let newValue = map(value, b1, e2, b2, e2);
 
             expect(newValue).toBeGreaterThanOrEqual(b2);
@@ -25,7 +25,7 @@ describe('constrain()', () => {
             b = Math.min(a, b);
             let e = Math.max(a, b);
 
-            let value = randomInt(b - 100, e + 100);
+            let value = Random.nextInteger(b - 100, e + 100);
             let newValue = constrain(value, b, e);
 
             expect(newValue).toBeGreaterThanOrEqual(b);
@@ -40,7 +40,7 @@ describe('normalize()', () => {
             let b = Math.min(a1, b1);
             let e = Math.max(a1, b1) + 1; // to be at least 1 more than begin
 
-            let value = randomFloat(b, e);
+            let value = Random.nextFloat(b, e);
             let newValue = normalize(value, b, e);
 
             expect(newValue).toBeGreaterThanOrEqual(0);
@@ -55,7 +55,7 @@ describe('square()', () => {
             let b = Math.min(a1, b1);
             let e = Math.max(a1, b1);
 
-            let value = randomInt(b, e);
+            let value = Random.nextInteger(b, e);
             let newValue = square(value);
 
             expect(newValue).toBe(Math.pow(value, 2))

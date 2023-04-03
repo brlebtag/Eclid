@@ -1,5 +1,10 @@
 import { Vector2D } from '../Common';
 
+const m = 4294967296;
+const c = 1013904223;
+const a = 1664525;
+let globalSeed = (Math.random() * m) >>> 0;
+
 // http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
 
 export function euclidian(node: Vector2D, target: Vector2D, cost: number = 1): number {
@@ -86,4 +91,26 @@ export function clamp(value: number, begin: number, end: number): number {
 
 export function sat(value: number): number {
     return Math.min(Math.max(value, 0.0), 1.0);
+}
+
+export function randomSeed(value: number): void {
+    globalSeed = value >>> 0;
+}
+
+export function random(): number {
+    globalSeed = (a * globalSeed + c) % m;
+    return globalSeed / m;
+}
+
+export class Random {
+    private seed: number;
+
+    Random(s: number) {
+        this.seed = s;
+    }
+
+    nextInteger(): number {
+        this.seed = (a * this.seed + c) % m;
+        return this.seed / m;     
+    }
 }
