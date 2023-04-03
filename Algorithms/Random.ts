@@ -40,7 +40,7 @@ export namespace Seeded {
         private seed: number;
 
         constructor(s: number) {
-            this.seed = s;
+            this.seed = s >>> 0;
         }
 
         public nextValue(): number {
