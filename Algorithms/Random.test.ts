@@ -27,19 +27,56 @@ describe('Random.nextFloat()', () => {
     });
 });
 
+describe('Seeded.nextValue()', () => {
+    it('must return the same values by both Random seeded with the same seed', () => {
+        fc.assert(fc.property(fc.array(fc.maxSafeInteger()), seeds => {
+            for (const seed of seeds) {
+                Seeded.setSeed(seed);
+                let val1 = Seeded.nextValue();
+                Seeded.setSeed(seed);
+                let val2 = Seeded.nextValue();
+                expect(val1).toBe(val2);
+            }
+        }));
+    });
+});
+
+describe('Seeded.nextInteger()', () => {
+    it('must return the same values by both Random seeded with the same seed', () => {
+        fc.assert(fc.property(fc.array(fc.maxSafeInteger()), seeds => {
+            for (const seed of seeds) {
+                Seeded.setSeed(seed);
+                let val1 = Seeded.nextInteger(0, 1000);
+                Seeded.setSeed(seed);
+                let val2 = Seeded.nextInteger(0, 1000);
+                expect(val1).toBe(val2);
+            }
+        }));
+    });
+});
+
+describe('Seeded.nextFloat()', () => {
+    it('must return the same values by both Random seeded with the same seed', () => {
+        fc.assert(fc.property(fc.array(fc.maxSafeInteger()), seeds => {
+            for (const seed of seeds) {
+                Seeded.setSeed(seed);
+                let val1 = Seeded.nextFloat(0, 1000.0);
+                Seeded.setSeed(seed);
+                let val2 = Seeded.nextFloat(0, 1000.0);
+                expect(val1).toBe(val2);
+            }
+        }));
+    });
+});
+
 describe('Seeded.Random.nextValue()', () => {
     it('must return the same values by both Random seeded with the same seed', () => {
         fc.assert(fc.property(fc.maxSafeInteger(), seed => {
             let rand1 = new Seeded.Random(seed);
             let rand2 = new Seeded.Random(seed);
-
-            let result = true;
-
             for (let i = 0; i < 100; i++) {
-                result &&= rand1.nextValue() == rand2.nextValue();
-            }
-
-            expect(result).toBe(true);
+                expect(rand1.nextValue()).toBe(rand2.nextValue());
+            }            
         }));
     });
 });
