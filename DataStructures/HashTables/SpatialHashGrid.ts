@@ -113,7 +113,7 @@ export default class SpatialHashGrid {
         for (let x = minIndex[0], xn = maxIndex[0]; x <= xn; ++x) {
             for (let y = minIndex[1], yn = maxIndex[1]; y <= yn; ++y) {
                 const xi = x - minIndex[0];
-                const yi = y - maxIndex[0];
+                const yi = y - minIndex[1];
                 const node = client._cells.nodes[xi][yi];
 
                 if (node.next) {
