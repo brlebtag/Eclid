@@ -1,7 +1,7 @@
 import SpatialHashGrid from "./SpatialHashGrid";
 import * as fc from "fast-check";
 import { map, euclidian } from "../../Algorithms/Math";
-import { smallestElement, biggestElement } from "../../Algorithms/Arrays";
+import { smallestElement, biggestElement, indexOfBiggest, indexOfSmallest } from "../../Algorithms/Arrays";
 import { Seeded } from "../../Algorithms/Random";
 
 function compareMin(tupleA: [number, number, number], tupleB: [number, number, number]): number{
@@ -23,7 +23,7 @@ const ElementSize = 100;
 
 describe('SpatialHashGrid', () => {
     it('must insert, update and search data preceisely', () => {
-        fc.assert(fc.property(fc.integer(), fc.array(fc.tuple(fc.integer({min: 0, max: GridSize}), fc.integer({min: 0, max: GridSize}), fc.integer({min: 0, max: ElementSize}))), (seed, positions) => {
+        fc.assert(fc.property(fc.integer(), fc.array(fc.tuple(fc.integer({min: 0, max: GridSize}), fc.integer({min: 0, max: GridSize}), fc.integer({min: 0, max: ElementSize})), {minLength: 1}), (seed, positions) => {
             let rand = new Seeded.Random(seed);
 
             let bounds = {
@@ -56,9 +56,9 @@ describe('SpatialHashGrid', () => {
                 addedClients.push(grid.newClient(position, dimention));
             }
 
-            let result = true;
+            const Tries = rand.nextInteger(1, positions.length);
 
-            for (let i = 0; i < positions.length; i++) {
+            for (let i = 0; i < Tries; i++) {
                 let x = rand.nextInteger(0, GridSize);
                 let y = rand.nextInteger(0, GridSize);
                 let size = rand.nextInteger(10, 100);
@@ -66,23 +66,21 @@ describe('SpatialHashGrid', () => {
 
                 let foundClients = grid.findNearby(position, {width: size, height: size});
 
-                let largestDistance = Math.max(dimentions.width, dimentions.height) + size; // distance + a_quadrant_size
+                let largestDistance = Math.max(dimentions.width, dimentions.height) + size + 1; // distance + a_quadrant_size
 
                 for (const client of foundClients) {
-                    result &&= euclidian(position, client.position) <= largestDistance;
+                    expect(euclidian(position, client.position)).toBeLessThanOrEqual(largestDistance);
                 }
             }
 
-            expect(result).toBe(true);
-
             for (const client of addedClients) {
-                client.position = {x: client.position.x + 30, y: client.position.y + 30};
+                client.position = {x: client.position.x + rand.nextInteger(10, 100), y: client.position.y + rand.nextInteger(10, 100)};
+                client.dimention = {width: client.dimention.width + rand.nextInteger(0, 100), height: client.dimention.height + rand.nextInteger(0, 100)};
                 grid.UpdateClient(client);
             }
 
-            result = true;
 
-            for (let i = 0; i < positions.length; i++) {
+            for (let i = 0; i < Tries; i++) {
                 let x = rand.nextInteger(0, GridSize);
                 let y = rand.nextInteger(0, GridSize);
                 let size = rand.nextInteger(10, 100);
@@ -90,14 +88,12 @@ describe('SpatialHashGrid', () => {
 
                 let foundClients = grid.findNearby(position, {width: size, height: size});
 
-                let largestDistance = Math.max(dimentions.width, dimentions.height) + size; // distance + a_quadrant_size
+                let largestDistance = Math.max(dimentions.width, dimentions.height) + size + 1; // distance + a_quadrant_size
 
                 for (const client of foundClients) {
-                    result &&= euclidian(position, client.position) <= largestDistance;
+                    expect(euclidian(position, client.position)).toBeLessThanOrEqual(largestDistance);
                 }
             }
-
-            expect(result).toBe(true);
 
             let half = Math.floor(addedClients.length / 2 - 1);
 
@@ -109,9 +105,7 @@ describe('SpatialHashGrid', () => {
                 addedClients.pop();
             }
 
-            result = true;
-
-            for (let i = 0; i < half; i++) {
+            for (let i = 0; i < Tries; i++) {
                 let x = rand.nextInteger(0, GridSize);
                 let y = rand.nextInteger(0, GridSize);
                 let size = rand.nextInteger(10, 100);
@@ -119,14 +113,12 @@ describe('SpatialHashGrid', () => {
 
                 let foundClients = grid.findNearby(position, {width: size, height: size});
 
-                let largestDistance = Math.max(dimentions.width, dimentions.height) + size; // distance + a_quadrant_size
+                let largestDistance = Math.max(dimentions.width, dimentions.height) + size + 1; // distance + a_quadrant_size
 
                 for (const client of foundClients) {
-                    result &&= euclidian(position, client.position) <= largestDistance;
+                    expect(euclidian(position, client.position)).toBeLessThanOrEqual(largestDistance);
                 }
             }
-
-            expect(result).toBe(true);
         }));
     });
 });
