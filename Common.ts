@@ -1,3 +1,6 @@
+export type Key = string | number;
+export type BigKey = string | number | symbol;
+
 export interface Comparator<T> {
     (x: T, y: T): number;
 }
@@ -37,6 +40,10 @@ export interface Bound {
 export interface Dimension {
     width: number;
     height: number;
+}
+
+export interface Indexer<T> {
+    (t: T): Key
 }
 
 export function ascending(x:number, y:number) :number {
