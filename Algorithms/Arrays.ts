@@ -1,4 +1,6 @@
-import { Comparator } from "../Common";
+import { Comparator, Indexer } from "../Common";
+
+import { dictionary } from "./Dictionaries";
 
 // https://dev.to/mokkapps/property-based-testing-with-typescript-2ljj
 // https://stackoverflow.com/questions/21624268/difference-between-stdmerge-and-stdinplace-merge
@@ -101,8 +103,6 @@ export function indexOfSmallest<T>(elements: T[], cmp: Comparator<T>, args: numb
         end = args[1]; // exclusive
     }
 
-    if (begin == end) return -1;
-
     let smallest: number = begin;
 
     while(++begin != end) {
@@ -111,12 +111,12 @@ export function indexOfSmallest<T>(elements: T[], cmp: Comparator<T>, args: numb
         }
     }
 
-    return begin;
+    return smallest;
 }
 
 export function smallestElement<T>(elements: T[], cmp: Comparator<T>, args: number[] = []): T {
     let index = indexOfSmallest(elements, cmp, args);
-    if (index == -1) return null;
+    if (index === -1) return null;
     return elements[index];
 }
 
@@ -133,22 +133,20 @@ export function indexOfBiggest<T>(elements: T[], cmp: Comparator<T>, args: numbe
         end = args[1]; // exclusive
     }
 
-    if (begin == end) return -1;
-
     let largest: number = begin;
 
-    while(++begin != end) {
+    while (++begin != end) {
         if (cmp(elements[begin], elements[largest]) > 0) {
             largest = begin;
         }
     }
 
-    return begin;
+    return largest;
 }
 
 export function biggestElement<T>(elements: T[], cmp: Comparator<T>, args: number[] = []): T {
     let index = indexOfBiggest(elements, cmp, args);
-    if (index == -1) return null;
+    if (index === -1) return null;
     return elements[index];
 }
 
@@ -211,4 +209,53 @@ export function swap<T>(data: T[], i: number, j: number): void{
     let temp: T = data[j];
     data[j] = data[i];
     data[i] = temp;
+}
+
+interface ListDiffResult<T> {
+    OnlyA: T[];
+    OnlyB: T[];
+    Common: T[];
+}
+
+interface DiffContext<T> {
+    ListA: Record<string, T>;
+    ListB: Record<string, T>;
+}
+
+/**
+ * IF you do not want to count repeated elements from each list, remove them first.
+ */
+export function diff<T>(listA: T[], listB: T[], indexer?: Indexer<T>, context?: DiffContext<T>): ListDiffResult<T> {
+    var result = {
+        OnlyA: [],
+        OnlyB: [],
+        Common: [],
+    };
+
+    if (!context) {
+        context = {
+            ListA: dictionary(listA, indexer),
+            ListB: dictionary(listB, indexer),
+        }
+    }
+
+    for (const elementA of listA) {
+        let keyA = indexer(elementA);
+        if (context.ListB[keyA]) {
+            result.Common.push(elementA);
+        } else {
+            result.OnlyA.push(elementA);
+        }
+    }
+
+    for (const elementB of listB) {
+        let keyB = indexer(elementB);
+        if (context.ListA[keyB]) {
+            result.Common.push(elementB);
+        } else {
+            result.OnlyB.push(elementB);
+        }
+    }
+
+    return result;
 }
