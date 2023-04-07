@@ -14,7 +14,8 @@ import {
     leftNodeIndex,
     rightNodeIndex,
     merge,
-    copy
+    copy,
+    diff
 } from './Arrays';
 import { ascending, compare } from '../Common';
 import { Random } from './Random';
@@ -143,22 +144,18 @@ describe('indexOfSmallest()', () => {
         fc.assert(fc.property(fc.array(fc.integer()), arr => {
             let minIndex = indexOfSmallest(arr, compare);
 
-            let value;
-
-            if (minIndex != -1) {
-                value = arr[minIndex];
-            }
-
-            let isSmallest = true;
+            let smallestIndex = -1;
+            let smallestElement = Number.MAX_SAFE_INTEGER;
 
             for (let i = 0; i < arr.length; i++) {
                 const element = arr[i];
-                if (compare(value, element) > 0) {
-                    isSmallest = false;
+                if (compare(smallestElement, element) > 0) {
+                    smallestElement = element;
+                    smallestIndex = i;
                 }
             }
             
-            expect(isSmallest).toBe(true);
+            expect(minIndex).toBe(smallestIndex);
         }));
     });
 });
@@ -168,16 +165,18 @@ describe('smallestElement()', () => {
         fc.assert(fc.property(fc.array(fc.integer()), arr => {
             let smallest = smallestElement(arr, compare);
 
-            let isSmallest = true;
+            let smallestIndex = -1;
+            let _smallestElement = null;
 
             for (let i = 0; i < arr.length; i++) {
                 const element = arr[i];
-                if (compare(smallest, element) > 0) {
-                    isSmallest = false;
+                if (compare(_smallestElement || Number.MAX_SAFE_INTEGER, element) > 0) {
+                    _smallestElement = element;
+                    smallestIndex = i;
                 }
             }
             
-            expect(isSmallest).toBe(true);
+            expect(smallest).toBe(_smallestElement);
         }));
     });
 });
@@ -185,24 +184,20 @@ describe('smallestElement()', () => {
 describe('indexOfBiggest()', () => {
     it('must return the index of the biggest element of the array', () => {
         fc.assert(fc.property(fc.array(fc.integer()), arr => {
-            let minIndex = indexOfBiggest(arr, compare);
+            let maxIndex = indexOfBiggest(arr, compare);
 
-            let value;
-
-            if (minIndex != -1) {
-                value = arr[minIndex];
-            }
-
-            let isBiggest = true;
+            let biggestIndex = -1;
+            let biggestElement = Number.MIN_SAFE_INTEGER;
 
             for (let i = 0; i < arr.length; i++) {
                 const element = arr[i];
-                if (compare(value, element) > 0) {
-                    isBiggest = false;
+                if (compare(biggestElement, element) < 0) {
+                    biggestElement = element;
+                    biggestIndex = i;
                 }
             }
             
-            expect(isBiggest).toBe(true);
+            expect(maxIndex).toBe(biggestIndex);
         }));
     });
 });
@@ -210,49 +205,18 @@ describe('indexOfBiggest()', () => {
 describe('biggestElement()', () => {
     it('must return the biggest element of the array', () => {
         fc.assert(fc.property(fc.array(fc.integer()), arr => {
-            let minIndex = biggestElement(arr, compare);
+            let maxElement = biggestElement(arr, compare);
 
-            let value;
-
-            if (minIndex != -1) {
-                value = arr[minIndex];
-            }
-
-            let isBiggest = true;
+            let _biggestElement = null;
 
             for (let i = 0; i < arr.length; i++) {
                 const element = arr[i];
-                if (compare(value, element) > 0) {
-                    isBiggest = false;
+                if (compare(_biggestElement || Number.MIN_SAFE_INTEGER, element) < 0) {
+                    _biggestElement = element;
                 }
             }
             
-            expect(isBiggest).toBe(true);
-        }));
-    });
-});
-
-describe('biggestElement()', () => {
-    it('must return the biggest element of the array', () => {
-        fc.assert(fc.property(fc.array(fc.integer()), arr => {
-            let minIndex = biggestElement(arr, compare);
-
-            let value;
-
-            if (minIndex != -1) {
-                value = arr[minIndex];
-            }
-
-            let isBiggest = true;
-
-            for (let i = 0; i < arr.length; i++) {
-                const element = arr[i];
-                if (compare(value, element) > 0) {
-                    isBiggest = false;
-                }
-            }
-            
-            expect(isBiggest).toBe(true);
+            expect(maxElement).toBe(_biggestElement);
         }));
     });
 });
@@ -342,6 +306,28 @@ describe('merge()', () => {
             let ordered = arr1.concat(arr2).sort(ascending);
             let newArray = merge(arr1.sort(ascending), arr2.sort(ascending), [], ascending);
             expect(newArray).toEqual(ordered);
+        }));
+    });
+});
+
+
+describe('diff<T>()', () => {
+    it('must return a list of elements that exists only in List A, only in List B and Common in both lists', () => {
+        fc.assert(fc.property(fc.array(fc.integer()), fc.array(fc.integer()), (arr1, arr2) => {
+            let result = diff(arr1, arr2, k => k);
+
+            for (const element of result.OnlyA) {
+                expect(arr2.filter(el => el === element).length).toBe(0);
+            }
+
+            for (const element of result.OnlyB) {
+                expect(arr1.filter(el => el === element).length).toBe(0);
+            }
+
+            for (const element of result.Common) {
+                expect(arr1.filter(el => el === element).length).toBe(1);
+                expect(arr2.filter(el => el === element).length).toBe(1);
+            }
         }));
     });
 });
