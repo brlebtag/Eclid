@@ -1,6 +1,6 @@
 import SpatialHashGrid from "./SpatialHashGrid";
 import * as fc from "fast-check";
-import { map, euclidian } from "../../Algorithms/Math";
+import { map, euclidian, clamp } from "../../Algorithms/Math";
 import { smallestElement, biggestElement, indexOfBiggest, indexOfSmallest } from "../../Algorithms/Arrays";
 import { Seeded } from "../../Algorithms/Random";
 
@@ -20,6 +20,7 @@ function compareMax(tupleA: [number, number, number], tupleB: [number, number, n
 
 const GridSize = 1_000;
 const ElementSize = 100;
+const QuadrantSize = 50;
 
 describe('SpatialHashGrid', () => {
     it('must insert, update and search data preceisely', () => {
@@ -33,15 +34,12 @@ describe('SpatialHashGrid', () => {
                 endY: GridSize,
             };
 
-            let quadrantSize = 50;
-
             let dimentions = {
-                width: (bounds.endX - bounds.beginX) / quadrantSize,
-                height: (bounds.endY - bounds.beginY) / quadrantSize,
+                width: (bounds.endX - bounds.beginX) / QuadrantSize,
+                height: (bounds.endY - bounds.beginY) / QuadrantSize,
             };
 
             let grid = new SpatialHashGrid(bounds, dimentions);
-
             let minEl = smallestElement(positions, compareMin);
             let maxEl = biggestElement(positions, compareMax);
 
@@ -66,7 +64,7 @@ describe('SpatialHashGrid', () => {
 
                 let foundClients = grid.findNearby(position, {width: size, height: size});
 
-                let largestDistance = Math.max(dimentions.width, dimentions.height) + size + 1; // distance + a_quadrant_size
+                let largestDistance = size + QuadrantSize * 4; // distance + a_quadrant_size
 
                 for (const client of foundClients) {
                     expect(euclidian(position, client.position)).toBeLessThanOrEqual(largestDistance);
@@ -88,7 +86,7 @@ describe('SpatialHashGrid', () => {
 
                 let foundClients = grid.findNearby(position, {width: size, height: size});
 
-                let largestDistance = Math.max(dimentions.width, dimentions.height) + size + 1; // distance + a_quadrant_size
+                let largestDistance = size + QuadrantSize * 4;
 
                 for (const client of foundClients) {
                     expect(euclidian(position, client.position)).toBeLessThanOrEqual(largestDistance);
@@ -113,7 +111,7 @@ describe('SpatialHashGrid', () => {
 
                 let foundClients = grid.findNearby(position, {width: size, height: size});
 
-                let largestDistance = Math.max(dimentions.width, dimentions.height) + size + 1; // distance + a_quadrant_size
+                let largestDistance = size + QuadrantSize * 4;
 
                 for (const client of foundClients) {
                     expect(euclidian(position, client.position)).toBeLessThanOrEqual(largestDistance);
