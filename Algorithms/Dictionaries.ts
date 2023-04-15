@@ -1,7 +1,7 @@
-import { Indexer, Key } from "../Common";
+import { Indexer, TKey } from "../Common";
 
-export function dictionary<T>(elements: T[], key: Indexer<T>): Record<Key, T> {
-    let dict: Record<Key, T> = {} as Record<Key, T>;
+export function dictionary<T>(elements: T[], key: Indexer<T>): Record<TKey, T> {
+    let dict: Record<TKey, T> = {} as Record<TKey, T>;
     let len = elements.length;
 
     for (let i = 0; i < len; i++) {
