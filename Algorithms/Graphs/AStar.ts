@@ -1,51 +1,44 @@
 import { Vector2D, Collider, key } from "../../Common";
 import IHeap from '../../DataStructures/Heaps/IHeap';
 
-interface G {
-    (source: Node, destiny: Node): number;
+export interface Measurement {
+    (source: Node): number;
 }
 
-interface F {
-    (source: Node, destiny: Node): number;
-}
-
-interface H {
-    (source: Node, destiny: Node): number;
-}
-
-interface Node extends Vector2D {
+export interface Node extends Vector2D {
     g?: number;
     f?: number;
     h?: number;
     previous?: Node;
 }
 
-interface Neighbors {
+export interface Neighbors {
     (node: Node, neighbors: Node[]): void;
 }
 
-interface State {
+export interface State {
     source: Node;
     destiny: Node;
     closedSet: Record<string, Node>;
     openSet: IHeap<Node>;
-    g: G;
-    f: F;
-    h: H;
+    g: Measurement;
+    f: Measurement;
+    h: Measurement;
     neighbors: Neighbors;
     collider: Collider;
 }
+
 export default function aStar(state: State): Node[] {
     const { source, destiny, closedSet, openSet, g, f, h, neighbors, collider} = state;
     let neighborNodes = [];
-    let node;
+    let node = source;
 
     while (!openSet.empty()) {
         node = openSet.pop();
 
         if (node.x == destiny.x && node.y == destiny.y) break;
 
-        const tempG = g(node, destiny);
+        const tempG = g(node);
 
         neighbors(node, neighborNodes);
 
@@ -67,8 +60,8 @@ export default function aStar(state: State): Node[] {
                 }
 
                 if (newPath) {
-                    neighbor.h = h(neighbor, destiny);
-                    neighbor.f = f(neighbor, destiny);
+                    neighbor.h = h(neighbor);
+                    neighbor.f = f(neighbor);
                     neighbor.previous = node;
                 }
             }
