@@ -15,7 +15,8 @@ import {
     rightNodeIndex,
     merge,
     copy,
-    diff
+    diff,
+    positionToVector2D
 } from './Arrays';
 import { ascending, compare } from '../Common';
 import { Random } from './Random';
@@ -328,6 +329,20 @@ describe('diff<T>()', () => {
                 expect(arr1.filter(el => el === element).length).toBe(1);
                 expect(arr2.filter(el => el === element).length).toBe(1);
             }
+        }));
+    });
+});
+
+
+describe('positionToVector2D', () => {
+    it('must return a valid Vector2D based on a sequencial position located within a 2D Grid area', () => {
+        fc.assert(fc.property(fc.integer({min: 0, max: 1_000 * 1_000}), pos => {
+            let vet = positionToVector2D(pos, 1_000);
+            expect(vet.x).toBeGreaterThanOrEqual(0);
+            expect(vet.x).toBeLessThanOrEqual(1_000);
+            expect(vet.y).toBeGreaterThanOrEqual(0);
+            expect(vet.y).toBeLessThanOrEqual(1_000);
+            expect(vet.y * 1_000 + vet.x).toBe(pos);
         }));
     });
 });
