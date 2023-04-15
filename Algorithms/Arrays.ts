@@ -1,4 +1,4 @@
-import { Comparator, Indexer } from "../Common";
+import { Comparator, Indexer, Vector2D } from "../Common";
 
 import { dictionary } from "./Dictionaries";
 
@@ -258,4 +258,12 @@ export function diff<T>(listA: T[], listB: T[], indexer?: Indexer<T>, context?: 
     }
 
     return result;
+}
+
+
+export function positionToVector2D(position: number, columnSize: number) : Vector2D {
+    return {
+        x: position % columnSize,
+        y: Math.floor(position / columnSize),
+    };
 }
