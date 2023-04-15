@@ -1,5 +1,5 @@
-export type Key = string | number;
-export type BigKey = string | number | symbol;
+export type TKey = string | number;
+export type TBigKey = string | number | symbol;
 
 export interface Comparator<T> {
     (x: T, y: T): number;
@@ -43,7 +43,7 @@ export interface Dimension {
 }
 
 export interface Indexer<T> {
-    (t: T): Key
+    (t: T): TKey
 }
 
 export function ascending(x:number, y:number) :number {
