@@ -52,6 +52,19 @@ export default class BinaryHeap<T> implements IHeap<T> {
         return this.storage.length <= 0? null : this.storage[0];
     }
 
+    update(data: T): void {
+        let index = this.storage.indexOf(data);
+
+        if (index !== -1) {
+            let parentIndex = parentNodeIndex(index);
+            if (parentIndex != -1 && this.comparator(this.storage[index], this.storage[parentIndex]) < 0) {
+                this.bubbleUp(index); // I'm bigger than my parent ...
+            } else {
+                this.bubbleDown(index); // then I might be smaller than my siblings...
+            }
+        }
+    }
+
     clear() {
         this.storage = [];
     }
@@ -69,7 +82,7 @@ export default class BinaryHeap<T> implements IHeap<T> {
         let parentIndex: number = parentNodeIndex(index);
         let compare = this.comparator;
 
-        while(index >= 0 && compare(value, this.storage[parentIndex]) < 0) {
+        while(index > 0 && compare(value, this.storage[parentIndex]) < 0) {
             this.storage[index] = this.storage[parentIndex];
             index = parentIndex;
             parentIndex = parentNodeIndex(index);

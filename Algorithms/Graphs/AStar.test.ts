@@ -1,6 +1,6 @@
 import * as fc from 'fast-check';
 import aStar, { Node } from './AStar';
-import { key, Vector2D, ascending } from '../../Common';
+import { key, ascending, Vector2D } from '../../Common';
 import { positionToVector2D } from '../Arrays';
 import { octile } from '../Math';
 import { dictionary } from '../Dictionaries';
@@ -8,63 +8,87 @@ import BinaryHeap from '../../DataStructures/Heaps/BinaryHeap';
 
 const GridSize = 200;
 
+function getNode(collection: Record<string, Node>, x: number, y: number): Node {
+    let key = `${x}#${y}`
+    if (collection[key]) {
+        return collection[key];
+    } else {
+        collection[key] = {
+            x: x,
+            y: y,
+            g: Number.MAX_SAFE_INTEGER,
+            f: Number.MAX_SAFE_INTEGER,
+            h: Number.MAX_SAFE_INTEGER,
+            visited: false
+        };
+
+        return collection[key];
+    }
+}
+
 describe('aStar()', () => {
     it('must find, if exists, a valid path from a to b', () => {
         fc.assert(fc.property(fc.uniqueArray(fc.integer({min: 0, max: GridSize * GridSize - 1}), {minLength: 2}), collisions => {
-            let source = positionToVector2D(Math.min(collisions[0], collisions[1]), GridSize);
-            let destiny = positionToVector2D(Math.max(collisions[0], collisions[1]), GridSize);
+            let source = positionToVector2D(Math.min(collisions[0], collisions[1]), GridSize) as Node;
+            let destiny = positionToVector2D(Math.max(collisions[0], collisions[1]), GridSize) as Node;
 
-            console.log(collisions);
-
+            source.g = source.h = source.f = 0;
+            source.visited = true;
+            source.previous = null;
             collisions.splice(0, 2);
 
-            let collide = dictionary(collisions, e => e);
+            let nodes = {
+                [key(source)]: source,
+                [key(destiny)]: destiny,
+            };
+
+            let collide = dictionary(collisions, (e: number) => e);
 
             let state = { 
-                source: source,
-                destiny: destiny,
-                closedSet: {
-                    [key(source)]: source
-                },
-                openSet: new BinaryHeap<Node>((n1, n2) => ascending(n1.f, n2.f), [source]),
-                g: n => n.g + 1,
-                f: n => n.g + n.h,
-                h: n => octile(n, destiny),
+                source: source as Node,
+                destiny: destiny as Node,
+                closedSet: {},
+                openedSet: new BinaryHeap<Node>((n1, n2) => {
+                    return ascending(n1.f, n2.f);
+                }, [source as Node]),
+                g: (n, _) => (n.g + 1),
+                f: (n, _) => (n.g + n.h),
+                h: (n, d) => octile(n, d),
                 neighbors: (n, neighbors) => {
                     if (n.x - 1 >= 0) {
-                        neighbors.push({x: n.x - 1, y: n.y});
-
+                        neighbors.push(getNode(nodes, n.x - 1, n.y));
+            
                         if (n.y - 1 >= 0) {
-                            neighbors.push({x: n.x - 1, y: n.y - 1});
+                            neighbors.push(getNode(nodes, n.x - 1, n.y - 1));
                         }
                     }
-
+            
                     if (n.x + 1 <= GridSize) {
-                        neighbors.push({x: n.x + 1, y: n.y});
-
+                        neighbors.push(getNode(nodes, n.x + 1, n.y));
+            
                         if (n.y + 1 <= GridSize) {
-                            neighbors.push({x: n.x + 1, y: n.y + 1});
+                            neighbors.push(getNode(nodes, n.x + 1, n.y + 1));
                         }
                     }
-
+            
                     if (n.y - 1 >= 0) {
-                        neighbors.push({x: n.x, y: n.y - 1});
-
+                        neighbors.push(getNode(nodes, n.x, n.y - 1));
+            
                         if (n.x + 1 <= GridSize) {
-                            neighbors.push({x: n.x + 1, y: n.y - 1});
+                            neighbors.push(getNode(nodes, n.x + 1, n.y - 1));
                         }
                     }
-
+            
                     if (n.y + 1 <= GridSize) {
-                        neighbors.push({x: n.x, y: n.y + 1});
-
+                        neighbors.push(getNode(nodes, n.x, n.y + 1));
+            
                         if (n.x - 1 >= 0) {
-                            neighbors.push({x: n.x - 1, y: n.y + 1});
+                            neighbors.push(getNode(nodes, n.x - 1, n.y + 1));
                         }
                     }
                 },
                 collider: n => collide[n.y * GridSize + n.x] !== undefined,
-            };
+            };;
 
             let path = aStar(state);
 
@@ -73,16 +97,25 @@ describe('aStar()', () => {
                 // Check Path is valid.
                 let last = path[path.length - 1];
 
-                expect(path[0].x).toBe(source.x);
-                expect(path[0].y).toBe(source.y);
 
-                expect(last.x).toBe(destiny.x);
-                expect(last.y).toBe(destiny.y);
+                expect(last.x).toBe(source.x);
+                expect(last.y).toBe(source.y);
+
+                expect(path[0].x).toBe(destiny.x);
+                expect(path[0].y).toBe(destiny.y);
 
                 for (let index = path.length - 2; index >= 0; index--) {
                     const current = path[index];
-                    expect(last.x).toBeGreaterThanOrEqual(current.x);
-                    expect(last.y).toBeGreaterThanOrEqual(current.y);
+
+                    let diffX = Math.abs(last.x - current.x);
+                    let diffY = Math.abs(last.y - current.y);
+
+                    expect(diffX).toBeGreaterThanOrEqual(0);
+                    expect(diffX).toBeLessThanOrEqual(1);
+
+                    expect(diffY).toBeGreaterThanOrEqual(0);
+                    expect(diffY).toBeLessThanOrEqual(1);
+
                     last = current;
                 }
             } else {

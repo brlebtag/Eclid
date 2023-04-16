@@ -2,7 +2,7 @@ import { Vector2D, Collider, key } from "../../Common";
 import IHeap from '../../DataStructures/Heaps/IHeap';
 
 export interface Measurement {
-    (source: Node): number;
+    (source: Node, destiny: Node): number;
 }
 
 export interface Node extends Vector2D {
@@ -10,6 +10,7 @@ export interface Node extends Vector2D {
     f?: number;
     h?: number;
     previous?: Node;
+    visited?: boolean;
 }
 
 export interface Neighbors {
@@ -19,8 +20,8 @@ export interface Neighbors {
 export interface State {
     source: Node;
     destiny: Node;
+    openedSet: IHeap<Node>;
     closedSet: Record<string, Node>;
-    openSet: IHeap<Node>;
     g: Measurement;
     f: Measurement;
     h: Measurement;
@@ -29,45 +30,44 @@ export interface State {
 }
 
 export default function aStar(state: State): Node[] {
-    const { source, destiny, closedSet, openSet, g, f, h, neighbors, collider} = state;
-    let neighborNodes = [];
+    const { source, destiny, closedSet, openedSet, g, f, h, neighbors, collider} = state;
+    let _neighbors = [];
     let node = source;
 
-    while (!openSet.empty()) {
-        node = openSet.pop();
+    while (!openedSet.empty()) {
+        node = openedSet.pop();
 
         if (node.x == destiny.x && node.y == destiny.y) break;
 
-        const tempG = g(node);
+        let nodeKey = key(node);
 
-        neighbors(node, neighborNodes);
+        closedSet[nodeKey] = node; // mark as visited        
 
-        for (const neighbor of neighborNodes) {
-            let neighborKey = key(neighbor);
+        neighbors(node, _neighbors); // Get Neighbors of node
 
-            if (!closedSet[neighborKey] && !collider(neighbor)) {
-                let newPath = false;
+        for (const neighbor of _neighbors) {
 
-                if (openSet[neighborKey]) {
-                    if (tempG < neighbor.g) {
-                        neighbor.g = tempG;
-                        newPath = true;
-                    }
-                } else {
-                    neighbor.g = tempG;
-                    openSet[neighborKey] = neighbor;
-                    newPath = true;
+            if (collider(neighbor)) continue;
+
+            const cost = g(node, neighbor);
+
+            if (neighbor.visited) {
+                if (cost < (neighbor.g || Number.MAX_SAFE_INTEGER)) {
+                    neighbor.g = cost;
+                    neighbor.previous = node; // this node is the best path
+                    openedSet.update(neighbor); // O(N + Lg N)
                 }
-
-                if (newPath) {
-                    neighbor.h = h(neighbor);
-                    neighbor.f = f(neighbor);
-                    neighbor.previous = node;
-                }
+            } else {
+                neighbor.g = cost;
+                neighbor.h = h(neighbor, destiny);
+                neighbor.f = f(neighbor, destiny);
+                neighbor.previous = node;
+                neighbor.visited = true;
+                openedSet.push(neighbor);
             }
         }
 
-        neighborNodes.length = 0;
+        _neighbors.length = 0; // clean neighbors
     }
 
     let path = [];
@@ -77,6 +77,8 @@ export default function aStar(state: State): Node[] {
             path.push(node);
             node = node.previous;
         }
+
+        path.push(node); // source...
     }
 
     return path;

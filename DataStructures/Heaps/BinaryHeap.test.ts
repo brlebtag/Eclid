@@ -70,4 +70,39 @@ describe('BinaryHeap', () => {
             expect(ordered).toEqual(sorted);
         }));
     });
+
+    it('must be able to change priority and maintain the array sorted', () => {
+        fc.assert(fc.property(fc.array(fc.integer()), arr => {
+            let arrObj = arr.map(el => ({id: el}));
+            let heap = new BinaryHeap<{id: number}>((a, b) => ascending(a.id, b.id), arrObj);
+            let len = Math.floor(arr.length/2);
+
+            for (let i = Math.floor(len/2); i < len; i++) {
+                const e = arrObj[i];
+                e.id *= 2;
+                heap.update(e);
+            }
+
+            let ordered: {id: number}[] = [];
+
+            while (!heap.empty()) {
+                ordered.push(heap.pop());
+            }
+
+            let prev = null;
+
+            if (ordered.length > 1) {
+                prev = ordered[1];
+            }
+
+            for (let i = 1; i < ordered.length; i++) {
+                const e: {id: number} = ordered[i];
+                expect(prev.id).toBeLessThanOrEqual(e.id);
+            }
+
+            if (ordered.length <= 0) {
+                expect(prev).toBe(null);
+            }            
+        }));
+    });
 });
