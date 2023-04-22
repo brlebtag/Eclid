@@ -71,3 +71,7 @@ export function compare(x:number, y:number) :number {
 export function key(v: Vector2D): string {
     return `${v.x}#${v.y}`;
 }
+
+export function keyXY(x: number, y: number): string {
+    return `${x}#${y}`;
+}
