@@ -46,6 +46,10 @@ export interface Indexer<T> {
     (t: T): TKey
 }
 
+export interface Creator<T> {
+    (): T;
+}
+
 export function ascending(x:number, y:number) :number {
     if (x < y) return -1;
     if (x > y) return 1;

@@ -1,6 +1,4 @@
-interface Creator<T> {
-    (): T;
-}
+import { Creator } from "../Common";
 
 export default class ObjectPool<T> {
     private pool: T[];
@@ -11,8 +9,9 @@ export default class ObjectPool<T> {
         this.creator = creator;
     }
 
-    release(obj: T) {
+    release(obj: T): ObjectPool<T> {
         this.pool.push(obj);
+        return this;
     }
 
     acquire(): T {
