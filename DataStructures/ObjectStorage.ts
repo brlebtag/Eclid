@@ -6,6 +6,7 @@ export default class ObjectStorage<T> {
 
     constructor(creator: Creator<T>) {
         this.creator = creator;
+        this.storage = {};
     }
 
     getOrCreate(key: TKey): T {
