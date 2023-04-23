@@ -28,7 +28,11 @@ export function octile(node: Vector2D, target: Vector2D): number {
     // return diagonal(node, target, 1, 1.4);
     let dx = Math.abs(node.x - target.x);
     let dy = Math.abs(node.y - target.y);
-    return (dx + dx) - 0.6 * Math.min(dx, dy);
+    if (dx < dy) {
+        return 1.4 * dx + dy;
+    } else {
+        return 1.4 * dy + dx;
+    }
 }
 
 export function chebyshev(node: Vector2D, target: Vector2D) {
