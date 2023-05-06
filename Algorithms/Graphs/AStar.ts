@@ -1,4 +1,4 @@
-import { Vector2D, Collider, key } from "../../Common";
+import { Vector2D, key } from "../../Common";
 import IHeap from '../../DataStructures/Heaps/IHeap';
 
 export interface Measurement {
@@ -26,11 +26,10 @@ export interface State {
     f: Measurement;
     h: Measurement;
     neighbors: Neighbors;
-    collider: Collider;
 }
 
 export default function aStar(state: State): Node[] {
-    const { source, destiny, closedSet, openedSet, g, f, h, neighbors, collider} = state;
+    const { source, destiny, closedSet, openedSet, g, f, h, neighbors } = state;
     let _neighbors = [];
     let node = source;
 
@@ -46,8 +45,6 @@ export default function aStar(state: State): Node[] {
         neighbors(node, _neighbors); // Get Neighbors of node
 
         for (const neighbor of _neighbors) {
-
-            if (collider(neighbor)) continue;
 
             const cost = g(node, neighbor);
 

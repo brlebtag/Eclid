@@ -1,6 +1,6 @@
 import * as fc from 'fast-check';
 import aStar, { Node } from './AStar';
-import { key, ascending, Vector2D } from '../../Common';
+import { key, ascending, Vector2D, TKey } from '../../Common';
 import { positionToVector2D } from '../Arrays';
 import { octile } from '../Math';
 import { dictionary } from '../Dictionaries';
@@ -24,6 +24,10 @@ function getNode(collection: Record<string, Node>, x: number, y: number): Node {
 
         return collection[key];
     }
+}
+
+function isValidPos(x: number, y: number, collisions: Record<TKey, number>): boolean {
+    return x >= 0 && x <= GridSize && y >= 0 && y <= GridSize && collisions[y * GridSize + x] !== undefined;
 }
 
 describe('aStar()', () => {
@@ -55,39 +59,38 @@ describe('aStar()', () => {
                 f: (n, _) => (n.g + n.h),
                 h: (n, d) => octile(n, d),
                 neighbors: (n, neighbors) => {
-                    if (n.x - 1 >= 0) {
+                    if (isValidPos(n.x - 1, n.y, collide)) {
                         neighbors.push(getNode(nodes, n.x - 1, n.y));
-            
-                        if (n.y - 1 >= 0) {
-                            neighbors.push(getNode(nodes, n.x - 1, n.y - 1));
-                        }
                     }
-            
-                    if (n.x + 1 <= GridSize) {
+
+                    if (isValidPos(n.x - 1, n.y - 1, collide)) {
+                        neighbors.push(getNode(nodes, n.x - 1, n.y - 1));
+                    }
+
+                    if (isValidPos(n.x + 1, n.y, collide)) {
                         neighbors.push(getNode(nodes, n.x + 1, n.y));
-            
-                        if (n.y + 1 <= GridSize) {
-                            neighbors.push(getNode(nodes, n.x + 1, n.y + 1));
-                        }
                     }
-            
-                    if (n.y - 1 >= 0) {
+
+                    if (isValidPos(n.x + 1, n.y + 1, collide)) {
+                        neighbors.push(getNode(nodes, n.x + 1, n.y + 1));
+                    }
+
+                    if (isValidPos(n.x, n.y - 1, collide)) {
                         neighbors.push(getNode(nodes, n.x, n.y - 1));
-            
-                        if (n.x + 1 <= GridSize) {
-                            neighbors.push(getNode(nodes, n.x + 1, n.y - 1));
-                        }
                     }
-            
-                    if (n.y + 1 <= GridSize) {
+
+                    if (isValidPos(n.x + 1, n.y - 1, collide)) {
+                        neighbors.push(getNode(nodes, n.x + 1, n.y - 1));
+                    }
+
+                    if (isValidPos(n.x, n.y + 1, collide)) {
                         neighbors.push(getNode(nodes, n.x, n.y + 1));
-            
-                        if (n.x - 1 >= 0) {
-                            neighbors.push(getNode(nodes, n.x - 1, n.y + 1));
-                        }
+                    }
+
+                    if (isValidPos(n.x - 1, n.y + 1, collide)) {
+                        neighbors.push(getNode(nodes, n.x - 1, n.y + 1));
                     }
                 },
-                collider: n => collide[n.y * GridSize + n.x] !== undefined,
             };;
 
             let path = aStar(state);
