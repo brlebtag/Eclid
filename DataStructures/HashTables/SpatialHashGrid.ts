@@ -2,7 +2,7 @@ import { Vector2D, Dimension, Bound } from "../../Common";
 import { sat } from '../../Algorithms/Math';
 import ObjectPool from "../ObjectPool";
 
-interface Client {
+export interface Client {
     position: Vector2D;
     dimention: Dimension;
     _queryId: number;
@@ -10,7 +10,8 @@ interface Client {
         min: [number, number],
         max: [number, number],
         nodes: LinkedList[],
-    }
+    },
+    me?: any,
 }
 
 interface LinkedList {
