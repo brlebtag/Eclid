@@ -85,7 +85,7 @@ describe('clamp()', () => {
 
 describe('sat()', () => {
     it('must return a value x between [0, 1] lerped by y', () => {
-        fc.assert(fc.property(fc.float({min: -1.0, max: 2.0}), y => {
+        fc.assert(fc.property(fc.float({min: -1.0, max: 2.0, noNaN: true}), y => {
             let x = sat(y);
             expect(x).toBeGreaterThanOrEqual(0);
             expect(x).toBeLessThanOrEqual(1);

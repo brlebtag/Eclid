@@ -100,21 +100,50 @@ export function bresenhamLine(point1: Vector2D, point2: Vector2D): Vector2D[] {
 export function raycast(begin: Vector2D, end: Vector2D, collider: Collider): RaycastResult {
     if (begin.x == end.x && begin.y == end.y) {
         return {
-            collided: true,
+            collided: false,
             where: begin,
             path: [begin],
         }
     }
 
-    let points = bresenhamLine(begin, end);
+    let points: Vector2D[] = [];
+    let {x: x0, y: y0 } = begin;
+    let {x: x1, y: y1 } = end;
 
-    for (const point of points) {
+    let dx: number = Math.abs(x1 - x0);
+    let sx: number = x0 < x1 ? 1 : -1;
+    let dy: number = - Math.abs(y1 - y0);
+    let sy: number = y0 < y1 ? 1 : -1;
+    let error = dx + dy;
+    let e2: number;
+
+    while (true)
+    {
+        let point = {x: x0, y: y0};
+        points.push(point);
+        
         if (collider(point)) {
             return {
                 collided: true,
                 where: point,
                 path: points,
             }
+        }
+
+        if (x0 == x1 && y0 == y1) break;
+
+        e2 = 2 * error;
+
+        if (e2 >= dy) {
+            if (x0 == x1) break;
+            error = error + dy;
+            x0 = x0 + sx;
+        }
+
+        if (e2 <= dx) {
+            if (y0 == y1) break;
+            error = error + dx;
+            y0 = y0 + sy;
         }
     }
 
