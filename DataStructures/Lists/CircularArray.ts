@@ -1,75 +1,90 @@
 import { shiftIndex } from "../../Algorithms/Arrays";
-import IList from "./IList";
-import IStack from "./IStack";
-import IQueue from "./IQueue";
 
-// https://www.programiz.com/dsa/circular-queue
+// https://embeddedartistry.com/blog/2017/05/17/creating-a-circular-buffer-in-c-and-c/
+// https://ferrous-systems.com/blog/lock-free-ring-buffer/
+// https://en.wikipedia.org/wiki/Circular_buffer
 
-export default class CircularArray<T> implements IList<T>, IStack<T>, IQueue<T> {
+export default class CircularArray<T> {
     private storage: T[];
     private _capacity: number;
     private begin: number;
     private end: number;
 
-    constructor(capacity: number, elements: any[] = []) {
-        if (elements.length <= capacity) {
+    constructor(capacity: number, elements: any[] = null) {
+        if (elements.length > capacity) {
             throw new Error("Capacity must be bigger than or equal to elements array size.");
+        }
+
+        if (elements === null) {
+            elements = new Array(capacity);
         }
 
         this._capacity = capacity;
         this.storage = elements;
-        this.begin = 0; // inclusive
-        this.end = 0; // inclusive
-    }
-
-    insert(index: number, data: T): boolean {
-        throw new Error("Method not implemented.");
-    }
-
-    remove(index: number): T {
-        throw new Error("Method not implemented.");
+        this.clear();
     }
 
     clear(): void {
-        throw new Error("Method not implemented.");
+        this.begin = this.end = -1;
     }
 
     front(): T {
-        if (this.empty()) return null as T;
+        const begin = this.begin;
+        if (begin === this.end) return undefined;
+        return this.storage[begin];
     }
 
     back(): T {
-        if (this.empty()) return null as T;
+        const end = this.end;
+        if (end === this.begin) return undefined;
+        return this.storage[end];
     }
 
+    // insert at the end
     push(value: T): void {
-        if (this.full) {
+        if (this.begin === -1) {
+            this.begin = this.end = 0;
+            this.storage[0] = value;
+        } else {
+
+        }
+    }
+
+    // insert at the beginning
+    unshift(value: T): void {
+        if (this.begin === -1) {
+            this.begin = this.end = 0;
+            this.storage[0] = value;
+        } else {
 
         }
     }
     
-    pop(value: T): T {
-        if (this.empty()) return null as T;
-    }
-
-    enqueue(value: T): void {
-
-    }
-
-    dequeue(value: T): T {
-        if (this.empty()) return null as T;
-    }
-
-    at(index: number): T {
+    // remove at the end
+    pop(): T {
         
     }
 
+    // remove at the beginning
+    shift(): T {
+        
+    }
+
+    at(index: number): T {
+        const capacity = this._capacity;
+        index += this.begin;
+        if (index >= 0) return this.storage[index % capacity]; // shift right
+        let newIndex = capacity - ((-index) % capacity); // shift to left
+        return this.storage[newIndex == capacity ? 0 : newIndex];
+    }
+
     get length(): number {
-        if (this.end > this.begin) {
-            return this.end - this.begin;
-        } else {
-            return ((this.end + 1) + (this.storage.length - this.begin));
-        }
+        const end = this.end;
+        const begin = this.begin;
+
+        if (begin === end) return 0;
+        if (end >= begin) return (end - begin + 1);
+        return (end + 1) + (this._capacity - begin);
     }
     
     get capacity(): number {
@@ -77,10 +92,10 @@ export default class CircularArray<T> implements IList<T>, IStack<T>, IQueue<T> 
     }
 
     full(): boolean {
-        return this.length == this._capacity;
+        return this.begin !== this.end;
     }
 
     empty() {
-        return this.begin == this.end;
+        return this.begin === this.end;
     }
 }

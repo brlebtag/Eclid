@@ -189,7 +189,7 @@ export function merge<T>(list1: T[], list2: T[], dest: T[], cmp: Comparator<T>, 
 
 export function shiftIndex(index: number, size: number): number {
     if (index >= 0) return index % size; // shift to right
-    let newIndex = size - (Math.abs(index) % size); // shift to left
+    let newIndex = size - ((-index) % size); // shift to left
     return newIndex == size ? 0 : newIndex;
 }
 
