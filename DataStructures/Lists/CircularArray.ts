@@ -31,15 +31,20 @@ export default class CircularArray<T> {
         }
     }
 
-    reset(): void {
+    public reset(): void {
         this._total = this._begin = this._end = 0;
     }
 
-    clear() {
+    public clean() {
         this._storage.fill(undefined);
     }
 
-    skipFront(num: number): void {
+    public clear() {
+        this.reset();
+        this.clean();
+    }
+
+    public skipFront(num: number): void {
         num = Math.min(num, this._total);
         if (num <= 0) return;
         const storage = this._storage;
@@ -52,7 +57,7 @@ export default class CircularArray<T> {
         this._begin = i;
     }
 
-    skipBack(num: number): void {
+    public skipBack(num: number): void {
         num = Math.min(num, this._total);
         if (num <= 0) return;
 
@@ -73,7 +78,7 @@ export default class CircularArray<T> {
         this._end = i;
     }
 
-    set(index: number, value: T): void {
+    public set(index: number, value: T): void {
         const capacity = this._capacity;
         index += this._begin;
         if (index >= 0) {
@@ -84,12 +89,12 @@ export default class CircularArray<T> {
         this._storage[newIndex === capacity ? 0 : newIndex] = value;
     }
 
-    front(): T {
+    public front(): T {
         if (this._total === 0) return undefined; // empty
         return this._storage[this._begin];
     }
 
-    back(): T {
+    public back(): T {
         if (this._total === 0) return undefined; // empty
         let index = this._end - 1;
         if (index < 0) {
@@ -99,7 +104,7 @@ export default class CircularArray<T> {
     }
 
     // insert at the end
-    push(value: T): void {
+    public push(value: T): void {
         const capacity = this._capacity;
         const end = this._end;
         this._storage[end] = value;
@@ -112,7 +117,7 @@ export default class CircularArray<T> {
     }
 
     // insert at the beginning
-    unshift(value: T): void {
+    public unshift(value: T): void {
         const capacity = this._capacity;
         this._begin--;
         if (this._begin < 0) {
@@ -130,7 +135,7 @@ export default class CircularArray<T> {
     }
     
     // remove at the end
-    pop(): T {
+    public pop(): T {
         const capacity = this._capacity;
         this._end--;
         if (this._end < 0) {
@@ -143,7 +148,7 @@ export default class CircularArray<T> {
     }
 
     // remove at the beginning
-    shift(): T {
+    public shift(): T {
         const capacity = this._capacity;
         let el = this._storage[this._begin];
         this._storage[this._begin] = undefined; // empty the slot
@@ -152,7 +157,7 @@ export default class CircularArray<T> {
         return el;
     }
 
-    at(index: number): T {
+    public at(index: number): T {
         const capacity = this._capacity;
         index += this._begin;
         if (index >= 0) return this._storage[index % capacity]; // shift right
@@ -160,31 +165,31 @@ export default class CircularArray<T> {
         return this._storage[newIndex === capacity ? 0 : newIndex];
     }
 
-    get(index: number): T {
+    public get(index: number): T {
         return this._storage[index];
     }
 
-    get length(): number {
+    public get length(): number {
         return this._total;
     }
     
-    get capacity(): number {
+    public get capacity(): number {
         return this._capacity;
     }
 
-    full(): boolean {
+    public full(): boolean {
         return this._total === this._capacity;
     }
 
-    empty() {
+    public empty() {
         return this._total === 0;
     }
 
-    get begin() {
+    public get begin() {
         return this._begin;
     }
     
-    get end() {
+    public get end() {
         return this._end;
     }
 }
